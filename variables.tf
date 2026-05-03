@@ -21,3 +21,9 @@ variable "environment" {
   type        = string
   default     = "dev"
 }
+
+variable "alert_email" {
+  description = "Email address for SNS alert notifications. Set locally in terraform.tfvars; do not commit real personal emails."
+  type        = string
+  default     = ""
+}
