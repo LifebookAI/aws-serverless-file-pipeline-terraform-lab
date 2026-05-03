@@ -11,3 +11,4 @@ lambda_package.zip
 __pycache__/
 .env
 test-data/
+state-backups/
