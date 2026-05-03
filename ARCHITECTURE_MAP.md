@@ -1,21 +1,71 @@
-# Lab 3 Step 1 — Architecture Inventory
+# Architecture Map
 
-## Manual Lab 2 to Terraform Translation
+## AWS Serverless File Pipeline — Terraform Lab
 
-| Manual AWS Component | Purpose | Terraform Resource |
-|---|---|---|
-| S3 bucket | Stores uploaded files and triggers processing | aws_s3_bucket |
-| S3 event notification | Invokes Lambda on upload | aws_s3_bucket_notification |
-| Lambda function | Processes uploaded file metadata | aws_lambda_function |
-| Lambda execution role | Allows Lambda to access AWS services | aws_iam_role |
-| IAM permissions | Least-privilege access for Lambda | aws_iam_policy |
-| DynamoDB table | Stores file metadata | aws_dynamodb_table |
-| SQS DLQ | Captures failed async processing events | aws_sqs_queue |
-| CloudWatch Logs | Stores Lambda execution logs | aws_cloudwatch_log_group |
-| CloudWatch Alarm | Detects Lambda errors | aws_cloudwatch_metric_alarm |
-| SNS Topic | Sends failure alerts | aws_sns_topic |
+```mermaid
+flowchart LR
+    User[User uploads file] --> S3[Amazon S3 Upload Bucket]
 
-## First Interview Explanation
+    S3 -->|ObjectCreated event| Lambda[AWS Lambda File Processor]
+    Lambda -->|head_object| S3
+    Lambda -->|put_item metadata| DDB[Amazon DynamoDB File Metadata Table]
 
-I manually built a serverless file-processing pipeline using S3, Lambda, DynamoDB, SQS, CloudWatch, and SNS. For Lab 3, I am rebuilding that same architecture with Terraform so the infrastructure is repeatable, version-controlled, and closer to a real production deployment workflow.
+    Lambda -->|failed async events| DLQ[Amazon SQS Dead-Letter Queue]
+    DLQ -->|visible messages > 0| CW[Amazon CloudWatch Alarm]
+    CW -->|alarm action| SNS[Amazon SNS Alert Topic]
+    SNS -->|email notification| Email[founder@uselifebook.ai]
 
+    KMS[AWS KMS Customer-Managed Key] -->|encrypts| SNS
+
+    TF[Terraform] --> S3
+    TF --> Lambda
+    TF --> DDB
+    TF --> DLQ
+    TF --> CW
+    TF --> SNS
+    TF --> KMS
+
+    GHA[GitHub Actions] -->|OIDC assume role| IAM[IAM Role]
+    IAM -->|plan-only access| TFState[S3 Remote Terraform State]
+    TF --> TFState
+```
+
+## Success Path
+
+```text
+S3 upload
+→ S3 ObjectCreated event
+→ Lambda invocation
+→ S3 object metadata read
+→ DynamoDB metadata record created
+```
+
+## Failure / Alert Path
+
+```text
+Lambda async failure
+→ SQS DLQ
+→ CloudWatch alarm
+→ Encrypted SNS topic
+→ Email notification
+```
+
+## Infrastructure as Code Path
+
+```text
+GitHub push / PR
+→ GitHub Actions Terraform CI
+→ GitHub Actions OIDC role assumption
+→ Terraform init with S3 remote backend
+→ Terraform plan against deployed AWS resources
+```
+
+## Security Notes
+
+- Lambda uses least-privilege IAM.
+- S3 public access is blocked.
+- S3 and DynamoDB encryption are enabled.
+- SNS uses a customer-managed KMS key.
+- CloudWatch is explicitly allowed to use the SNS KMS key.
+- Terraform state is stored remotely in S3 with locking enabled.
+- GitHub Actions uses OIDC instead of long-lived AWS keys.
