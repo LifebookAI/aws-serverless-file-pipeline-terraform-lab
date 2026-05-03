@@ -1,7 +1,7 @@
 variable "aws_profile" {
-  description = "AWS CLI profile used by Terraform for local deployments."
+  description = "Optional AWS CLI profile used by Terraform for local deployments. Leave null in CI so OIDC/environment credentials are used."
   type        = string
-  default     = "lifebook-sso"
+  default     = null
 }
 
 variable "aws_region" {
