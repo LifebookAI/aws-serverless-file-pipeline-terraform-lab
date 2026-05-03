@@ -10,3 +10,4 @@ tfplan-*
 lambda_package.zip
 __pycache__/
 .env
+test-data/
