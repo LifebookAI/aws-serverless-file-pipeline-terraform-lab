@@ -5,6 +5,8 @@ crash.log
 crash.*.log
 *.tfvars
 !terraform.tfvars.example
+*.tfplan
+tfplan-*
 lambda_package.zip
 __pycache__/
 .env
