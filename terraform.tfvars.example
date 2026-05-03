@@ -1,0 +1,4 @@
+aws_profile  = "lifebook-sso"
+aws_region   = "us-east-1"
+project_name = "serverless-file-pipeline-tf"
+environment  = "dev"
