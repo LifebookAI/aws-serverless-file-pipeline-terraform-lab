@@ -52,6 +52,19 @@ data "aws_iam_policy_document" "lambda_permissions" {
   }
 
   statement {
+    sid    = "AllowSendFailedEventsToDlq"
+    effect = "Allow"
+
+    actions = [
+      "sqs:SendMessage"
+    ]
+
+    resources = [
+      aws_sqs_queue.lambda_dlq.arn
+    ]
+  }
+
+  statement {
     sid    = "AllowWriteCloudWatchLogs"
     effect = "Allow"
 
