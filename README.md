@@ -1,5 +1,9 @@
 # AWS Serverless File Pipeline — Terraform Lab
 
+## Architecture Diagram
+
+See the full [Architecture Map](./ARCHITECTURE_MAP.md).
+
 ## Overview
 
 This project rebuilds my manually created AWS serverless file-processing pipeline using Terraform.
@@ -166,3 +170,4 @@ Before destroying, empty the S3 bucket if Terraform cannot delete it due to exis
 - CloudWatch DLQ alarm deployed
 - SNS email alerting configured
 - Customer-managed KMS fix applied for encrypted alert publishing
+
